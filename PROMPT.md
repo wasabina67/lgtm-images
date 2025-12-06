@@ -2,9 +2,11 @@ High-quality square-format anime illustration.
 Soft lighting, clear details, natural shading.
 Warm and gentle color harmony.
 
+Character:
 A cute girl with long straight brown hair, wearing a beige cardigan,
 white blouse, and red ribbon.
 
+Background:
 Outdoor park background with trees, blue sky, and soft daylight.
 
 Camera framing:
