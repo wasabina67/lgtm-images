@@ -1,194 +1,194 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LGTM Images</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LGTM Images</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>LGTM Images</h1>
-        <p class="subtitle">Looks Good To Me - Anime Style Gallery</p>
-        <div id="gallery" class="gallery">
-            <div class="loading">Loading images...</div>
-        </div>
+  <div class="container">
+    <h1>LGTM Images</h1>
+    <p class="subtitle">Looks Good To Me - Anime Style Gallery</p>
+    <div id="gallery" class="gallery">
+      <div class="loading">Loading images...</div>
     </div>
+  </div>
 
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal()">&times;</button>
-            <img id="modal-image" src="" alt="">
-        </div>
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+      <img id="modal-image" src="" alt="">
     </div>
+  </div>
 
-    <script>
-        const CONFIG = {
-            BASE_URL: 'https://wasabina67.is-a.dev/lgtm-images',
-            IMAGES_DIR: 'images/',
-            IMAGE_EXTENSIONS: /\.(png|jpg|jpeg|gif|webp)$/i,
-            MAX_IMAGES_TO_CHECK: 1000,
-            COPY_FEEDBACK_DURATION: 2000,
-            ICONS: {
-                COPY: '📋',
-                COPIED: '✅'
-            }
-        };
+  <script>
+    const CONFIG = {
+      BASE_URL: 'https://wasabina67.is-a.dev/lgtm-images',
+      IMAGES_DIR: 'images/',
+      IMAGE_EXTENSIONS: /\.(png|jpg|jpeg|gif|webp)$/i,
+      MAX_IMAGES_TO_CHECK: 1000,
+      COPY_FEEDBACK_DURATION: 2000,
+      ICONS: {
+        COPY: '📋',
+        COPIED: '✅'
+      }
+    };
 
-        const gallery = document.getElementById('gallery');
-        const modal = document.getElementById('modal');
-        const modalImage = document.getElementById('modal-image');
+    const gallery = document.getElementById('gallery');
+    const modal = document.getElementById('modal');
+    const modalImage = document.getElementById('modal-image');
 
-        function parseImageLinksFromHTML(htmlText) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, 'text/html');
-            return Array.from(doc.querySelectorAll('a'))
-                .map(a => a.getAttribute('href'))
-                .filter(href => href && CONFIG.IMAGE_EXTENSIONS.test(href));
+    function parseImageLinksFromHTML(htmlText) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+      return Array.from(doc.querySelectorAll('a'))
+        .map(a => a.getAttribute('href'))
+        .filter(href => href && CONFIG.IMAGE_EXTENSIONS.test(href));
+    }
+
+    async function discoverImagesBySequentialFetch(maxImages = CONFIG.MAX_IMAGES_TO_CHECK) {
+      const imageFiles = [];
+
+      for (let i = 1; i <= maxImages; i++) {
+        const testUrl = `${CONFIG.IMAGES_DIR}${i}.png`;
+        try {
+          const response = await fetch(testUrl, { method: 'HEAD' });
+          if (response.ok) {
+            imageFiles.push(`${i}.png`);
+          } else {
+            break;
+          }
+        } catch (error) {
+          break;
         }
+      }
 
-        async function discoverImagesBySequentialFetch(maxImages = CONFIG.MAX_IMAGES_TO_CHECK) {
-            const imageFiles = [];
+      return imageFiles;
+    }
 
-            for (let i = 1; i <= maxImages; i++) {
-                const testUrl = `${CONFIG.IMAGES_DIR}${i}.png`;
-                try {
-                    const response = await fetch(testUrl, { method: 'HEAD' });
-                    if (response.ok) {
-                        imageFiles.push(`${i}.png`);
-                    } else {
-                        break;
-                    }
-                } catch (error) {
-                    break;
-                }
-            }
+    async function loadImagesFromDirectory() {
+      const response = await fetch(CONFIG.IMAGES_DIR);
+      const htmlText = await response.text();
+      return parseImageLinksFromHTML(htmlText);
+    }
 
-            return imageFiles;
-        }
+    async function loadImages() {
+      let imageFiles = [];
 
-        async function loadImagesFromDirectory() {
-            const response = await fetch(CONFIG.IMAGES_DIR);
-            const htmlText = await response.text();
-            return parseImageLinksFromHTML(htmlText);
-        }
+      try {
+        imageFiles = await loadImagesFromDirectory();
+      } catch (error) {
+        console.error('Error loading directory:', error);
+      }
 
-        async function loadImages() {
-            let imageFiles = [];
+      if (imageFiles.length === 0) {
+        imageFiles = await discoverImagesBySequentialFetch();
+      }
 
-            try {
-                imageFiles = await loadImagesFromDirectory();
-            } catch (error) {
-                console.error('Error loading directory:', error);
-            }
+      if (imageFiles.length > 0) {
+        displayImages(imageFiles);
+      } else {
+        showEmptyState();
+      }
+    }
 
-            if (imageFiles.length === 0) {
-                imageFiles = await discoverImagesBySequentialFetch();
-            }
+    function extractNumericValue(filename) {
+      const match = filename.match(/\d+/);
+      return match ? parseInt(match[0], 10) : 0;
+    }
 
-            if (imageFiles.length > 0) {
-                displayImages(imageFiles);
-            } else {
-                showEmptyState();
-            }
-        }
+    function displayImages(imageFiles) {
+      gallery.innerHTML = '';
 
-        function extractNumericValue(filename) {
-            const match = filename.match(/\d+/);
-            return match ? parseInt(match[0], 10) : 0;
-        }
+      const sortedFiles = [...imageFiles].sort((a, b) =>
+        extractNumericValue(b) - extractNumericValue(a)
+      );
 
-        function displayImages(imageFiles) {
-            gallery.innerHTML = '';
+      sortedFiles.forEach(filename => {
+        gallery.appendChild(createImageCard(filename));
+      });
+    }
 
-            const sortedFiles = [...imageFiles].sort((a, b) =>
-                extractNumericValue(b) - extractNumericValue(a)
-            );
+    function createImageCard(filename) {
+      const imagePath = `${CONFIG.IMAGES_DIR}${filename}`;
 
-            sortedFiles.forEach(filename => {
-                gallery.appendChild(createImageCard(filename));
-            });
-        }
+      const card = document.createElement('div');
+      card.className = 'image-card';
 
-        function createImageCard(filename) {
-            const imagePath = `${CONFIG.IMAGES_DIR}${filename}`;
+      const imageWrapper = document.createElement('div');
+      imageWrapper.className = 'image-wrapper';
 
-            const card = document.createElement('div');
-            card.className = 'image-card';
+      const img = document.createElement('img');
+      img.src = imagePath;
+      img.alt = filename;
+      img.loading = 'lazy';
 
-            const imageWrapper = document.createElement('div');
-            imageWrapper.className = 'image-wrapper';
+      const copyBtn = createCopyButton(filename);
 
-            const img = document.createElement('img');
-            img.src = imagePath;
-            img.alt = filename;
-            img.loading = 'lazy';
+      imageWrapper.append(img, copyBtn);
+      imageWrapper.onclick = () => openModal(imagePath);
 
-            const copyBtn = createCopyButton(filename);
+      card.appendChild(imageWrapper);
 
-            imageWrapper.append(img, copyBtn);
-            imageWrapper.onclick = () => openModal(imagePath);
+      return card;
+    }
 
-            card.appendChild(imageWrapper);
+    function createCopyButton(filename) {
+      const button = document.createElement('button');
+      button.className = 'copy-btn';
+      button.textContent = CONFIG.ICONS.COPY;
+      button.title = 'Copy Markdown';
+      button.onclick = (e) => {
+        e.stopPropagation();
+        copyMarkdown(filename, button);
+      };
+      return button;
+    }
 
-            return card;
-        }
+    function showCopyFeedback(button) {
+      const originalText = button.textContent;
+      button.textContent = CONFIG.ICONS.COPIED;
+      button.classList.add('copied');
 
-        function createCopyButton(filename) {
-            const button = document.createElement('button');
-            button.className = 'copy-btn';
-            button.textContent = CONFIG.ICONS.COPY;
-            button.title = 'Copy Markdown';
-            button.onclick = (e) => {
-                e.stopPropagation();
-                copyMarkdown(filename, button);
-            };
-            return button;
-        }
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove('copied');
+      }, CONFIG.COPY_FEEDBACK_DURATION);
+    }
 
-        function showCopyFeedback(button) {
-            const originalText = button.textContent;
-            button.textContent = CONFIG.ICONS.COPIED;
-            button.classList.add('copied');
+    async function copyMarkdown(filename, button) {
+      const imageUrl = `${CONFIG.BASE_URL}/images/${filename}`;
+      const markdownText = `![LGTM](${imageUrl})`;
 
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.classList.remove('copied');
-            }, CONFIG.COPY_FEEDBACK_DURATION);
-        }
+      try {
+        await navigator.clipboard.writeText(markdownText);
+        showCopyFeedback(button);
+      } catch (error) {
+        console.error('Failed to copy:', error);
+        alert('Failed to copy Markdown');
+      }
+    }
 
-        async function copyMarkdown(filename, button) {
-            const imageUrl = `${CONFIG.BASE_URL}/images/${filename}`;
-            const markdownText = `![LGTM](${imageUrl})`;
+    function openModal(imageSrc) {
+      modalImage.src = imageSrc;
+      modal.classList.add('active');
+    }
 
-            try {
-                await navigator.clipboard.writeText(markdownText);
-                showCopyFeedback(button);
-            } catch (error) {
-                console.error('Failed to copy:', error);
-                alert('Failed to copy Markdown');
-            }
-        }
+    function closeModal() {
+      modal.classList.remove('active');
+    }
 
-        function openModal(imageSrc) {
-            modalImage.src = imageSrc;
-            modal.classList.add('active');
-        }
+    function showEmptyState() {
+      gallery.innerHTML = '<div class="empty">No images found</div>';
+    }
 
-        function closeModal() {
-            modal.classList.remove('active');
-        }
+    modal.onclick = (e) => e.target === modal && closeModal();
 
-        function showEmptyState() {
-            gallery.innerHTML = '<div class="empty">No images found</div>';
-        }
+    document.addEventListener('keydown', (e) => e.key === 'Escape' && closeModal());
 
-        modal.onclick = (e) => e.target === modal && closeModal();
-
-        document.addEventListener('keydown', (e) => e.key === 'Escape' && closeModal());
-
-        loadImages();
-    </script>
+    loadImages();
+  </script>
 </body>
 </html>
