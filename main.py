@@ -1,20 +1,19 @@
+import base64
 import os
 from pathlib import Path
 
-import httpx
 from openai import OpenAI
 
 
 def generate_lgtm_image(client: OpenAI, prompt: str, output_path: str) -> None:
     response = client.images.generate(
-        model="dall-e-3",
+        model="gpt-image-1",
         prompt=prompt,
-        size="1024x1024",
-        quality="standard",
         n=1,
+        size="1024x1024",
     )
-    image_url = response.data[0].url
-    image_data = httpx.get(image_url).content
+    b64_json = response.data[0].b64_json
+    image_data = base64.b64decode(b64_json)
     with open(output_path, "wb") as f:
         f.write(image_data)
 
