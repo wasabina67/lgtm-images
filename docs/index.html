@@ -27,7 +27,6 @@
     const CONFIG = {
       BASE_URL: 'https://wasabina67.is-a.dev/lgtm-images',
       IMAGES_DIR: 'images/',
-      IMAGE_EXTENSIONS: /\.(png|jpg|jpeg|gif|webp)$/i,
       MAX_IMAGES_TO_CHECK: 1000,
       COPY_FEEDBACK_DURATION: 2000,
       ICONS: {
@@ -39,14 +38,6 @@
     const gallery = document.getElementById('gallery');
     const modal = document.getElementById('modal');
     const modalImage = document.getElementById('modal-image');
-
-    function parseImageLinksFromHTML(htmlText) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlText, 'text/html');
-      return Array.from(doc.querySelectorAll('a'))
-        .map(a => a.getAttribute('href'))
-        .filter(href => href && CONFIG.IMAGE_EXTENSIONS.test(href));
-    }
 
     async function discoverImagesBySequentialFetch(maxImages = CONFIG.MAX_IMAGES_TO_CHECK) {
       const imageFiles = [];
@@ -68,24 +59,8 @@
       return imageFiles;
     }
 
-    async function loadImagesFromDirectory() {
-      const response = await fetch(CONFIG.IMAGES_DIR);
-      const htmlText = await response.text();
-      return parseImageLinksFromHTML(htmlText);
-    }
-
     async function loadImages() {
-      let imageFiles = [];
-
-      try {
-        imageFiles = await loadImagesFromDirectory();
-      } catch (error) {
-        console.error('Error loading directory:', error);
-      }
-
-      if (imageFiles.length === 0) {
-        imageFiles = await discoverImagesBySequentialFetch();
-      }
+      const imageFiles = await discoverImagesBySequentialFetch();
 
       if (imageFiles.length > 0) {
         displayImages(imageFiles);
