@@ -203,6 +203,8 @@
                             const testResponse = await fetch(testUrl, { method: 'HEAD' });
                             if (testResponse.ok) {
                                 pngFiles.push(`${i}.png`);
+                            } else {
+                                break;
                             }
                         } catch (e) {
                             break;
