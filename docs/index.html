@@ -103,7 +103,6 @@
             opacity: 1;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -174,7 +173,6 @@
     <div class="container">
         <h1>LGTM Images</h1>
         <p class="subtitle">Looks Good To Me - Anime Style Gallery</p>
-
         <div id="gallery" class="gallery">
             <div class="loading">Loading images...</div>
         </div>
@@ -306,10 +304,10 @@
             const button = document.createElement('button');
             button.className = 'copy-btn';
             button.textContent = CONFIG.ICONS.COPY;
-            button.title = 'Copy URL';
+            button.title = 'Copy Markdown';
             button.onclick = (e) => {
                 e.stopPropagation();
-                copyImageUrl(filename, button);
+                copyMarkdown(filename, button);
             };
             return button;
         }
@@ -325,7 +323,7 @@
             }, CONFIG.COPY_FEEDBACK_DURATION);
         }
 
-        async function copyImageUrl(filename, button) {
+        async function copyMarkdown(filename, button) {
             const imageUrl = `${CONFIG.BASE_URL}/images/${filename}`;
             const markdownText = `![LGTM](${imageUrl})`;
 
@@ -334,7 +332,7 @@
                 showCopyFeedback(button);
             } catch (error) {
                 console.error('Failed to copy:', error);
-                alert('Failed to copy URL');
+                alert('Failed to copy Markdown');
             }
         }
 
