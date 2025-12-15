@@ -69,35 +69,34 @@
             object-fit: cover;
         }
 
-        .image-info {
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .image-name {
-            font-weight: 600;
-            color: #333;
-        }
-
         .copy-btn {
-            background: #667eea;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.3s ease;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+            opacity: 0;
+        }
+
+        .image-card:hover .copy-btn {
+            opacity: 1;
         }
 
         .copy-btn:hover {
-            background: #5568d3;
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
         }
 
         .copy-btn.copied {
             background: #48bb78;
+            opacity: 1;
         }
 
         /* Modal */
@@ -272,29 +271,20 @@
             img.alt = filename;
             img.loading = 'lazy';
 
-            imageWrapper.appendChild(img);
-            imageWrapper.onclick = () => openModal(`images/${filename}`);
-
-            const info = document.createElement('div');
-            info.className = 'image-info';
-
-            const name = document.createElement('div');
-            name.className = 'image-name';
-            name.textContent = filename;
-
             const copyBtn = document.createElement('button');
             copyBtn.className = 'copy-btn';
-            copyBtn.textContent = 'Copy URL';
+            copyBtn.textContent = '📋';
+            copyBtn.title = 'Copy URL';
             copyBtn.onclick = (e) => {
                 e.stopPropagation();
                 copyImageUrl(filename, copyBtn);
             };
 
-            info.appendChild(name);
-            info.appendChild(copyBtn);
+            imageWrapper.appendChild(img);
+            imageWrapper.appendChild(copyBtn);
+            imageWrapper.onclick = () => openModal(`images/${filename}`);
 
             card.appendChild(imageWrapper);
-            card.appendChild(info);
 
             return card;
         }
@@ -315,7 +305,7 @@
             try {
                 await navigator.clipboard.writeText(imageUrl);
                 const originalText = button.textContent;
-                button.textContent = 'Copied!';
+                button.textContent = '✓';
                 button.classList.add('copied');
 
                 setTimeout(() => {
