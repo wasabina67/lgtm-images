@@ -91,7 +91,6 @@
 
         .copy-btn:hover {
             background: rgba(0, 0, 0, 0.8);
-            transform: scale(1.1);
         }
 
         .copy-btn.copied {
@@ -299,11 +298,12 @@
         }
 
         async function copyImageUrl(filename, button) {
-            const baseUrl = window.location.href.replace(/\/[^\/]*$/, '');
+            const baseUrl = 'https://wasabina67.is-a.dev/lgtm-images';
             const imageUrl = `${baseUrl}/images/${filename}`;
+            const markdownText = `![LGTM](${imageUrl})`;
 
             try {
-                await navigator.clipboard.writeText(imageUrl);
+                await navigator.clipboard.writeText(markdownText);
                 const originalText = button.textContent;
                 button.textContent = '✓';
                 button.classList.add('copied');
