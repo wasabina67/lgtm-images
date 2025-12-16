@@ -18,7 +18,7 @@
 
   <div id="modal" class="modal">
     <div class="modal-content">
-      <button class="close-btn" onclick="closeModal()">&times;</button>
+      <button class="close-btn">&times;</button>
       <img id="modal-image" src="" alt="">
     </div>
   </div>
@@ -38,33 +38,20 @@
     const gallery = document.getElementById('gallery');
     const modal = document.getElementById('modal');
     const modalImage = document.getElementById('modal-image');
+    const closeBtn = document.querySelector('.close-btn');
 
     function loadImages() {
       const imageFiles = Array.from(
         { length: CONFIG.IMAGE_COUNT },
-        (_, i) => `${i + 1}.png`
+        (_, i) => `${CONFIG.IMAGE_COUNT - i}.png`
       );
 
-      if (imageFiles.length > 0) {
-        displayImages(imageFiles);
-      } else {
-        showEmptyState();
-      }
-    }
-
-    function extractNumericValue(filename) {
-      const match = filename.match(/\d+/);
-      return match ? parseInt(match[0], 10) : 0;
+      displayImages(imageFiles);
     }
 
     function displayImages(imageFiles) {
       gallery.innerHTML = '';
-
-      const sortedFiles = [...imageFiles].sort((a, b) =>
-        extractNumericValue(b) - extractNumericValue(a)
-      );
-
-      sortedFiles.forEach(filename => {
+      imageFiles.forEach(filename => {
         gallery.appendChild(createImageCard(filename));
       });
     }
@@ -138,12 +125,8 @@
       modal.classList.remove('active');
     }
 
-    function showEmptyState() {
-      gallery.innerHTML = '<div class="empty">No images found</div>';
-    }
-
+    closeBtn.onclick = closeModal;
     modal.onclick = (e) => e.target === modal && closeModal();
-
     document.addEventListener('keydown', (e) => e.key === 'Escape' && closeModal());
 
     loadImages();
