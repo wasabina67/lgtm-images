@@ -1,6 +1,8 @@
 # lgtm-images
 LGTM images
 
+## Generate LGTM Image
+
 ### Sync
 
 ```bash
