@@ -18,7 +18,7 @@
 
   <div id="modal" class="modal">
     <div class="modal-content">
-      <button class="close-btn" onclick="closeModal()">&times;</button>
+      <button class="close-btn">&times;</button>
       <img id="modal-image" src="" alt="">
     </div>
   </div>
@@ -27,7 +27,7 @@
     const CONFIG = {
       BASE_URL: 'https://wasabina67.is-a.dev/lgtm-images',
       IMAGES_DIR: 'images/',
-      MAX_IMAGES_TO_CHECK: 1000,
+      IMAGE_COUNT: 13,
       COPY_FEEDBACK_DURATION: 2000,
       ICONS: {
         COPY: '📋',
@@ -38,50 +38,20 @@
     const gallery = document.getElementById('gallery');
     const modal = document.getElementById('modal');
     const modalImage = document.getElementById('modal-image');
+    const closeBtn = document.querySelector('.close-btn');
 
-    async function discoverImagesBySequentialFetch(maxImages = CONFIG.MAX_IMAGES_TO_CHECK) {
-      const imageFiles = [];
+    function loadImages() {
+      const imageFiles = Array.from(
+        { length: CONFIG.IMAGE_COUNT },
+        (_, i) => `${i + 1}.png`
+      ).reverse();
 
-      for (let i = 1; i <= maxImages; i++) {
-        const testUrl = `${CONFIG.IMAGES_DIR}${i}.png`;
-        try {
-          const response = await fetch(testUrl, { method: 'HEAD' });
-          if (response.ok) {
-            imageFiles.push(`${i}.png`);
-          } else {
-            break;
-          }
-        } catch (error) {
-          break;
-        }
-      }
-
-      return imageFiles;
-    }
-
-    async function loadImages() {
-      const imageFiles = await discoverImagesBySequentialFetch();
-
-      if (imageFiles.length > 0) {
-        displayImages(imageFiles);
-      } else {
-        showEmptyState();
-      }
-    }
-
-    function extractNumericValue(filename) {
-      const match = filename.match(/\d+/);
-      return match ? parseInt(match[0], 10) : 0;
+      displayImages(imageFiles);
     }
 
     function displayImages(imageFiles) {
       gallery.innerHTML = '';
-
-      const sortedFiles = [...imageFiles].sort((a, b) =>
-        extractNumericValue(b) - extractNumericValue(a)
-      );
-
-      sortedFiles.forEach(filename => {
+      imageFiles.forEach(filename => {
         gallery.appendChild(createImageCard(filename));
       });
     }
@@ -155,12 +125,8 @@
       modal.classList.remove('active');
     }
 
-    function showEmptyState() {
-      gallery.innerHTML = '<div class="empty">No images found</div>';
-    }
-
+    closeBtn.onclick = closeModal;
     modal.onclick = (e) => e.target === modal && closeModal();
-
     document.addEventListener('keydown', (e) => e.key === 'Escape' && closeModal());
 
     loadImages();
