@@ -31,6 +31,10 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: uv run python main.py
 
+      - name: update
+        run: |
+          ls
+
       - name: Configure git
         run: |
           git config --local user.name "github-actions[bot]"
