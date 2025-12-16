@@ -31,7 +31,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: uv run python main.py
 
-      - name: update
+      - name: Update IMAGE_COUNT
         run: |
           ls
 
