@@ -43,8 +43,8 @@
     function loadImages() {
       const imageFiles = Array.from(
         { length: CONFIG.IMAGE_COUNT },
-        (_, i) => `${CONFIG.IMAGE_COUNT - i}.png`
-      );
+        (_, i) => `${i + 1}.png`
+      ).reverse();
 
       displayImages(imageFiles);
     }
