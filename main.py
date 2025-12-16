@@ -38,7 +38,7 @@ def generate_output_path() -> Path:
 
 def load_prompt() -> str:
     variations_path = Path(__file__).parent / "variations.json"
-    with open(variations_path, "r", encoding="utf-8") as f:
+    with open(variations_path, encoding="utf-8") as f:
         variations = json.load(f)
 
     character = random.choice(variations["characters"])
