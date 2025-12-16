@@ -33,7 +33,9 @@ jobs:
 
       - name: Update IMAGE_COUNT
         run: |
-          ls
+          IMAGE_COUNT=$(ls docs/images/*.png | wc -l)
+          sed -i "s/IMAGE_COUNT: [0-9]\+,/IMAGE_COUNT: $IMAGE_COUNT,/" docs/index.html
+          echo "Updated IMAGE_COUNT to $IMAGE_COUNT"
 
       - name: Configure git
         run: |
@@ -42,7 +44,7 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add docs/images/*.png
+          git add docs/images/*.png docs/index.html
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
