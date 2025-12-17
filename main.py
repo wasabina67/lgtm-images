@@ -9,7 +9,7 @@ from openai import OpenAI
 
 def generate_lgtm_image(client: OpenAI, prompt: str, output_path: str) -> None:
     response = client.images.generate(
-        model="gpt-image-1",
+        model="gpt-image-1.5",
         prompt=prompt,
         n=1,
         size="1024x1024",
